@@ -13,23 +13,26 @@ interface INumberprops {
 
 export const NumberInput = ({number, labelName, values, keyName, validate, handleChangeValue } : INumberprops) => {
 
-    const [ value, setValue ] = useState(values[keyName]);
     const [ isValidate, setIsValidate ] = useState<boolean>(false);
+    const [ fieldValue, setFieldValue ] = useState(values);
+
+    useEffect(() => {
+        validateValue();
+    }, [fieldValue])
 
     const valueChangeListner = (e: any) => {
         let getNumOnly = e.target.value.replace(/[^0-9]/g, "");
-        validateValue();
-        setValue(getNumOnly);
-        handleChangeValue({...values, [keyName]: getNumOnly})
+        setFieldValue({...fieldValue, [keyName]: getNumOnly });
     }
 
     const validateValue = () => {
-        if((value && validate.max >= value) && (value && validate.min <= value) ) 
-            setIsValidate(true);
-        else if( value === 0 || value === undefined )
-            setIsValidate(true)
-        else
+        if((fieldValue[keyName] && validate.max >= fieldValue[keyName]) && (fieldValue[keyName] && validate.min <= fieldValue[keyName]) ) { 
             setIsValidate(false);
+            handleChangeValue({...values, [keyName]: parseInt(fieldValue[keyName])})
+        } else if( fieldValue[keyName] === 0 || fieldValue[keyName] === undefined )
+            setIsValidate(false)
+        else
+            setIsValidate(true);
     }
 
     return (
@@ -38,12 +41,12 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
                 <Trans>{labelName}</Trans><SpanLabel>{validate.min} - {validate.max} cm</SpanLabel>
             </TextLabel>
             <InputGroup>
-                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={value} $index={number}/>
+                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={fieldValue[keyName]} $index={number}/>
                 <Types>cm</Types>
             </InputGroup>
             <InfoContainer $index={number}>
-                <InfoLabel $bg='red' $isValid={isValidate} $value={value} $align="left">min {validate.min}px and max {validate.max}px</InfoLabel>
-                <InfoLabel $bg='black' $isValid={!isValidate} $value={value} $align="center">{ value * 10 } mm</InfoLabel>
+                <InfoLabel $bg='red' $isValid={isValidate} $value={fieldValue[keyName]} $align="left">min {validate.min}px and max {validate.max}px</InfoLabel>
+                <InfoLabel $bg='black' $isValid={!isValidate} $value={fieldValue[keyName]} $align="center">{ fieldValue[keyName] * 10 } mm</InfoLabel>
             </InfoContainer>
         </InputContainer>
     )

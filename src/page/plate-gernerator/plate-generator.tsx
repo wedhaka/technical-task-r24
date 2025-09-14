@@ -10,6 +10,8 @@ export const PlateGenerator = () => {
         i18n.changeLanguage(lang)
     }
 
+    // console.log(plateList, 'plateList')
+
     return (
         <>
             <ToggleEl>
@@ -74,14 +76,14 @@ const PlatePanel = styled.div`
 const LeftBox = styled.div`
     background-color: #F3F3F3;
     border: 1px solid #CCC;
-    height: 400px;
+    height: 600px;
     max-width: 100%;
 `
 
 const RightBox = styled.div `
     background-color: #FFF;
     border: 1px solid #FFF;
-    height: 400px;
+    height: 600px;
     max-width: 100%;
     overflow-y: auto;
     padding-right: 10px;

@@ -25,6 +25,8 @@ const ButtonAdd = styled.button`
     justify-self:  ${(p: any) => p.$align};
     margin-right: 0px;
     padding: 10px 15px;
+    position: absolute;
+    z-index: 9;
     '&:focus; &:hover': {
         border: 1px solid #8aec8aff;
         color: #8aec8aff;

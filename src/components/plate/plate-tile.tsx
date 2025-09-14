@@ -1,24 +1,132 @@
 import styled from "styled-components"
 import { NumberInput } from "../inputs/number-input"
-import { useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 interface PlateTileProps {
     number: number;
     plateDetails: any;
     handPlateRemove: (index: number) => void;
-    handPlateUpdate: (index: number) => void;
+    handPlateUpdate: (index: number, values: object) => void;
+    handleUpdateNoteOrder: (oldIndex: number, newIndex: number) => void;
 }
 
-export const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate}: PlateTileProps) => {
+const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, handleUpdateNoteOrder}: PlateTileProps) => {
 
     const [plateValues, setPlateValues] = useState(plateDetails);
-    console.log(plateDetails, 'plateValues');
+    const selfRef = useRef<HTMLDivElement>(null);
+    const [isMoving, setIsMoving] = useState<boolean>(false);
+
+    let post1 = 0;
+    let post2 = 0;
+    let mEy = 0;
+
+    const updateFieldHander = (plate: any) => {
+        setPlateValues(plate);
+        handPlateUpdate(number, plate);
+    }
+
+    const mouseDown = (e: any) => {
+        post2 = e.clientY;
+        mEy = e.pageY;
+
+        if (!selfRef.current) return;
+        selfRef.current.style.zIndex = '100';
+        selfRef.current.style.top = e.scrollY + 'px';
+        document.onmousemove = mouseMove;
+    }
+    
+    const mouseMove = (e: any) => {
+        e.preventDefault();
+        let isOverlapedPrev = false;
+        let isOverlapedNext = false;
+        post1 = post2 - e.clientY;
+        post2 = e.clientY;
+        // setMeY(prev => prev = e.pageY);
+        setIsMoving(true);
+
+        if (!selfRef.current) return;
+        selfRef.current.style.top = (selfRef.current.offsetTop - post1) + "px";
+
+        const previousSibling = selfRef.current.previousSibling;
+        const nextSibling = selfRef.current.nextSibling;
+
+        if( previousSibling !== null && mEy > e.pageY) {
+            isOverlapedPrev = elementsOverlapPrev(selfRef, previousSibling);
+            if(isOverlapedPrev) {
+                let siblingTop = previousSibling?.dataset.top;
+                let currentTop = parseInt(selfRef.current.dataset.top);
+                selfRef.current?.parentNode?.insertBefore(selfRef.current, previousSibling);
+                previousSibling.style.top = currentTop + 'px';
+                previousSibling.dataset.top = currentTop;
+                selfRef.current.dataset.top = siblingTop;
+            }
+        } else if (nextSibling !== null && mEy < e.pageY) {
+            isOverlapedNext = elementsOverlapNext(selfRef, nextSibling);
+            if(isOverlapedNext) {
+                let siblingTop = nextSibling.dataset.top;
+                let currentTop = parseInt(selfRef.current.dataset.top);
+                selfRef.current?.parentNode?.insertBefore(selfRef.current, nextSibling.nextSibling);
+                nextSibling.style.top = currentTop + 'px';
+                nextSibling.dataset.top = currentTop;
+                selfRef.current.dataset.top = siblingTop;
+            }
+        }
+    }
+
+    const mouseLeave = (e: any) => {
+        e.preventDefault();
+
+        if (!selfRef.current) return;
+        selfRef.current.style.zIndex = '10';
+
+        // Destroy the mouse events
+        document.onmousemove = null;
+        document.onmousedown = null;
+
+        let newIndex = 0;
+        if (selfRef.current == null) return;
+        selfRef.current.parentNode?.childNodes.forEach((element, i) => {
+            if(element == selfRef.current) newIndex = i;
+        });
+        setIsMoving(false);
+        handleUpdateNoteOrder(number, newIndex);
+    }
+
+    const elementsOverlapPrev = (el1:any, el2:any) => {
+
+        const domRect1 = el1.current.getBoundingClientRect();
+        const domRect2 = el2?.getBoundingClientRect();
+
+        return !(
+            (domRect1.top - 55) > domRect2.top
+        );
+    }
+
+    const elementsOverlapNext = (el1:any, el2:any) => {
+
+        const domRect1 = el1.current.getBoundingClientRect();
+        const domRect2 = el2?.getBoundingClientRect();
+
+        return !(
+            domRect1.bottom < (domRect2.bottom - 55)
+        );
+    }
 
     return (
         <>
-            <CardContainer $index={number}>
+            <CardContainer 
+                $index={number}
+                $order={number}
+                ref={selfRef}
+                $isMoving={isMoving}
+                data-top={`${number == 0 ? 0 : number == 1 ? 68 : number*100-32 }`}
+                >
                 <CardBoxContainer>
-                    <CardNumber $index={number}>{number + 1}</CardNumber>
+                    <CardNumber 
+                        $index={number}
+                        onMouseDown={(e:any) => mouseDown(e)} 
+                        onMouseUp={(e:any) => mouseLeave(e)} 
+                        >{number + 1}</CardNumber>
                     <CardInputBox> 
                         <NumberInput 
                             number={number} 
@@ -26,7 +134,7 @@ export const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdat
                             validate={{max: 300, min: 20}}
                             values={plateValues}
                             keyName="width"
-                            handleChangeValue={setPlateValues}
+                            handleChangeValue={updateFieldHander}
                             />
                         <Seperator $index={number}>X</Seperator>
                         <NumberInput 
@@ -35,7 +143,7 @@ export const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdat
                             validate={{max: 128, min: 30}}
                             values={plateValues}
                             keyName="height"
-                            handleChangeValue={setPlateValues}
+                            handleChangeValue={updateFieldHander}
                             />
                     </CardInputBox>
                     <CardDeleteBtn $index={number} onClick={() => handPlateRemove(number)}>-</CardDeleteBtn>
@@ -45,18 +153,34 @@ export const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdat
     )
 }
 
+export default memo(PlateTile);
+
+const CardMain = styled.div`
+    background-color: #F9F9F9;
+    border: 1px solid #000;
+    height: 50px;
+    width: 100%;
+    display: flex;
+    position: relative;
+    
+`
+
 const CardContainer = styled.div`
     background-color: #F3F3F3;
     border-radius: 5px;
     margin-bottom: 10px;
-    margin-left: 10px;
+    margin-left: 0px;
     padding:  ${(p: any) => p.$bg == 0 ? '5px' : '15px'};
+    position: absolute;
+    z-index: 9;
+    top: ${(p: any) => p.$index == 0 ? 0 : p.$index == 1 ? 68 : p.$index*100-32 }px;
 `
 
 const CardBoxContainer = styled.div`
     align-items: end;
     display: flex;
     flex-direction: row;
+    position: relative;
 `
 
 const CardNumber = styled.span`
@@ -64,6 +188,7 @@ const CardNumber = styled.span`
     border: 1px solid #000;
     border-radius: 5px;
     color: ${(p: any) => p.$index == 0 ? 'black' : 'white'};
+    cursor: move;
     font-size: 14px;
     height: 15px;
     line-height: 15px;
@@ -101,6 +226,7 @@ const CardDeleteBtn = styled.button`
     height: 20px;
     line-height: 0px;
     margin-bottom:  ${(p: any) => p.$index == 0 ? '5px' : '17px'};
+    pointer-events:  ${(p: any) => p.$index == 0 ? 'none' : 'auto'};
     text-align: left;
     width: 20px;
     '&:hover':  {
