@@ -37,11 +37,11 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
 
     return (
         <InputContainer>
-            <TextLabel $index={number}>
+            <TextLabel $index={number} for={labelName}>
                 <Trans>{labelName}</Trans><SpanLabel>{validate.min} - {validate.max} cm</SpanLabel>
             </TextLabel>
             <InputGroup>
-                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={fieldValue[keyName]} $index={number}/>
+                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={fieldValue[keyName]} $index={number} name={labelName}/>
                 <Types>cm</Types>
             </InputGroup>
             <InfoContainer $index={number}>

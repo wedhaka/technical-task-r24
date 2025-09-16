@@ -146,7 +146,7 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
                             handleChangeValue={updateFieldHander}
                             />
                     </CardInputBox>
-                    <CardDeleteBtn $index={number} onClick={() => handPlateRemove(number)}>-</CardDeleteBtn>
+                    <CardDeleteBtn $index={number} onClick={() => handPlateRemove(number)} type="button">-</CardDeleteBtn>
                 </CardBoxContainer>
             </CardContainer>
         </>
@@ -155,15 +155,6 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
 
 export default memo(PlateTile);
 
-const CardMain = styled.div`
-    background-color: #F9F9F9;
-    border: 1px solid #000;
-    height: 50px;
-    width: 100%;
-    display: flex;
-    position: relative;
-    
-`
 
 const CardContainer = styled.div`
     background-color: #F3F3F3;
@@ -196,6 +187,13 @@ const CardNumber = styled.span`
     padding: 5px;
     text-align: center;
     width: 30px;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
 `
 
 const CardInputBox = styled.div`
