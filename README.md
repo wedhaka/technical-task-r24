@@ -48,4 +48,9 @@ PORT=5173
 
 # Screenshots
 
-![Default](./public/screenshots/Plate%20list%20-%2001.png)
+![Img_01](./public/screenshots/Plate%20list%20-%2001.png)
+![Img_02](./public/screenshots/Plate%20list%20-%2002.png)
+![Img_03](./public/screenshots/Plate%20list%20-%2003.png)
+![Img_04](./public/screenshots/Plate%20list%20-%2004.png)
+![Img_05](./public/screenshots/lange%20change%20to%20en.png)
+![Img_06](./public/screenshots/snapshot.png)
