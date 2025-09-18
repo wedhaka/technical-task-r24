@@ -46,6 +46,11 @@ By default, Vite runs on port 5173. You can change the port in vite.config.ts or
 PORT=5173
 ```
 
+# Assumptions
+- The first element’s appearance will remain unchanged  
+- After adding multiple images, height will be limited and scrolling will be enabled  
+- LocalStorage configuration is used for state management  
+
 # Screenshots
 
 ![Img_01](./public/screenshots/Plate%20list%20-%2001.png)
