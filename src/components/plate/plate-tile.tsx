@@ -1,6 +1,6 @@
 import styled from "styled-components"
 import { NumberInput } from "../inputs/number-input"
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 
 interface PlateTileProps {
     number: number;
@@ -25,6 +25,10 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
         handPlateUpdate(number, plate);
     }
 
+    /*
+     * Mouse Event as mouse down trigger listner here
+     * Listning the Mousemove event and pass the method into it
+     */
     const mouseDown = (e: any) => {
         post2 = e.clientY;
         mEy = e.pageY;
@@ -33,8 +37,15 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
         selfRef.current.style.zIndex = '100';
         selfRef.current.style.top = e.scrollY + 'px';
         document.onmousemove = mouseMove;
+        document.ontouchmove = mouseMove;
     }
     
+    
+    /*
+     * MouseMove Listning here
+     * Collecting the move direction of Mouse and changing the element params
+     * Remove the Element from position and replace with moved position
+     */
     const mouseMove = (e: any) => {
         e.preventDefault();
         let isOverlapedPrev = false;
@@ -73,6 +84,11 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
         }
     }
 
+    /*
+     * Mouse Event as mouse up trigger listner here
+     * Removing all Listners from document Object
+     * Upldate the main PlateList from Element update
+     */
     const mouseLeave = (e: any) => {
         e.preventDefault();
 
@@ -126,6 +142,8 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
                         $index={number}
                         onMouseDown={(e:any) => mouseDown(e)} 
                         onMouseUp={(e:any) => mouseLeave(e)} 
+                        onTouchStart={(e:any) => mouseDown(e)}
+                        onTouchEnd={(e:any) => mouseLeave(e)}
                         >{number + 1}</CardNumber>
                     <CardInputBox> 
                         <NumberInput 
@@ -146,7 +164,7 @@ const PlateTile = ({number, plateDetails, handPlateRemove, handPlateUpdate, hand
                             handleChangeValue={updateFieldHander}
                             />
                     </CardInputBox>
-                    <CardDeleteBtn $index={number} onClick={() => handPlateRemove(number)} type="button">-</CardDeleteBtn>
+                    <CardDeleteBtn $index={number} onClick={() => handPlateRemove(number)} onTouchStart={() => handPlateRemove(number)} type="button">-</CardDeleteBtn>
                 </CardBoxContainer>
             </CardContainer>
         </>
@@ -165,6 +183,8 @@ const CardContainer = styled.div`
     position: absolute;
     z-index: 9;
     top: ${(p: any) => p.$index == 0 ? 0 : p.$index == 1 ? 68 : p.$index*100-32 }px;
+    width: calc(100% - 30px);
+    
 `
 
 const CardBoxContainer = styled.div`
@@ -202,6 +222,8 @@ const CardInputBox = styled.div`
     flex-direction: row;
     margin-bottom: 0px;
     padding: 0 10px;
+    justify-content: space-between;
+    width: 100%;
 `
 
 const Seperator = styled.span`

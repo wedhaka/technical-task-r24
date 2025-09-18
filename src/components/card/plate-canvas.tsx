@@ -1,17 +1,21 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 interface PlateCanvasProps {
-    plateList: [];
+    plateList: any;
 }
 
 export const PlateCanvasPattern = ({plateList}: PlateCanvasProps) => {
 
     const canvasRef = useRef(null);
+    const [windowWidth, setWindowWidth] = useState(800);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+
+        drawLoading(ctx, canvas);
 
         Promise.all(
             plateList.map((plate) =>
@@ -27,7 +31,16 @@ export const PlateCanvasPattern = ({plateList}: PlateCanvasProps) => {
             drawAll(images);
         })
 
-        function drawAll(images) {
+        function drawLoading(ctx, canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "gray";
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("Loading...", canvas.width / 2, canvas.height / 2);
+        }
+
+        function drawAll(images: any) {
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
 
@@ -59,23 +72,44 @@ export const PlateCanvasPattern = ({plateList}: PlateCanvasProps) => {
                 const sx = (img.width - newWidth) / 2;
                 const sy = (img.height - newHeight) / 2;
 
-                // ctx.drawImage(img, x, y, plate.width, plate.height);
+                ctx.save();
+
+                // Move the origin to where the image should end up after flip
+                ctx.translate(x + plate.width, y);
+                ctx.scale(-1, 1); // flip horizontally
 
                 ctx.drawImage(
                     img,
-                    sx, sy, newWidth, newHeight, // crop from source
-                    x, y, plate.width, plate.height  // draw into box
+                    sx, sy, newWidth, newHeight,
+                    0, 0, plate.width, plate.height
                 );
+
+                ctx.restore();
+
 
                 x += plate.width;
                 if (plate.height > maxRowHeight) maxRowHeight = plate.height;
             });
         }
+
     }, [plateList]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth < 768 ? window.innerWidth : window.innerWidth - 320);
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        // cleanup on unmount
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [])
 
     return (
         <>
-            <PlateCanvasBox ref={canvasRef} width={800} height={400}/>
+            <PlateCanvasBox ref={canvasRef} width={windowWidth} height={(windowWidth/16)*9}/>
         </>
     )
 }
@@ -83,7 +117,6 @@ export const PlateCanvasPattern = ({plateList}: PlateCanvasProps) => {
 const PlateCanvasBox = styled.canvas`
     max-width: 100%;
     max-height: 100%;
-    border: 1px solid red;
-    width: calc(100% - 2px);
-    height: 100%;
+    width: 100%;
+    height: auto;
 `

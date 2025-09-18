@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Trans } from "react-i18next";
 import styled from "styled-components"
+import { parseNumberLocale } from "../../util";
+import { PageContext } from "../../App";
 
 interface INumberprops {
     number: number;
@@ -15,6 +17,7 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
 
     const [ isValidate, setIsValidate ] = useState<boolean>(false);
     const [ fieldValue, setFieldValue ] = useState(values);
+    const { lang, dimens } = useContext(PageContext);
 
     useEffect(() => {
         validateValue();
@@ -26,7 +29,10 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
     }
 
     const validateValue = () => {
-        if((fieldValue[keyName] && validate.max >= fieldValue[keyName]) && (fieldValue[keyName] && validate.min <= fieldValue[keyName]) ) { 
+        if(dimens === 'cm' && (fieldValue[keyName] && validate.max >= fieldValue[keyName]) && (fieldValue[keyName] && validate.min <= fieldValue[keyName]) ) { 
+            setIsValidate(false);
+            handleChangeValue({...values, [keyName]: parseInt(fieldValue[keyName])})
+        } else if(dimens === 'inch' && (fieldValue[keyName] && validate.max >= fieldValue[keyName]) && (fieldValue[keyName] && validate.min <= fieldValue[keyName]) ) { 
             setIsValidate(false);
             handleChangeValue({...values, [keyName]: parseInt(fieldValue[keyName])})
         } else if( fieldValue[keyName] === 0 || fieldValue[keyName] === undefined )
@@ -37,16 +43,16 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
 
     return (
         <InputContainer>
-            <TextLabel $index={number} for={labelName}>
+            <TextLabel $index={number}>
                 <Trans>{labelName}</Trans><SpanLabel>{validate.min} - {validate.max} cm</SpanLabel>
             </TextLabel>
             <InputGroup>
-                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={fieldValue[keyName]} $index={number} name={labelName}/>
-                <Types>cm</Types>
+                <TextInput type="text" onChange={(e) => valueChangeListner(e)} value={fieldValue[keyName]} $index={number}/>
+                <Types>{ dimens }</Types>
             </InputGroup>
             <InfoContainer $index={number}>
-                <InfoLabel $bg='red' $isValid={isValidate} $value={fieldValue[keyName]} $align="left">min {validate.min}px and max {validate.max}px</InfoLabel>
-                <InfoLabel $bg='black' $isValid={!isValidate} $value={fieldValue[keyName]} $align="center">{ fieldValue[keyName] * 10 } mm</InfoLabel>
+                <InfoLabel $bg='red' $isValid={isValidate} $value={fieldValue[keyName]} $align="left">min {validate.min} {dimens} and max {validate.max} {dimens}</InfoLabel>
+                <InfoLabel $bg='black' $isValid={!isValidate} $value={fieldValue[keyName]} $align="center">{ parseNumberLocale((fieldValue[keyName] * 10), lang) } mm</InfoLabel>
             </InfoContainer>
         </InputContainer>
     )
@@ -55,6 +61,7 @@ export const NumberInput = ({number, labelName, values, keyName, validate, handl
 const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `
 
 const TextLabel = styled.label`
@@ -103,6 +110,7 @@ const Types = styled.span`
     position: absolute;
     right: 10px;
     color: black;
+    bottom: -3px;
 `
 
 const InfoContainer = styled.div`
@@ -112,7 +120,7 @@ const InfoContainer = styled.div`
 `
 
 const InfoLabel = styled.span`
-    font-size: 70%;
+    font-size: 60%;
     position: relative;
     color: ${(p: any) => p.$bg};
     text-align: ${(p: any) => p.$align};

@@ -4,11 +4,13 @@ import { Button } from "../button/button";
 import styled from "styled-components";
 import { Trans } from "react-i18next";
 import { PlateCanvasPattern } from "./plate-canvas";
+import { FileUploadInput } from "../inputs/fileupload-input";
+import { LangToggleBtn } from "../toggle-input/lang-toggle";
+import { DimensToggleBtn } from "../toggle-input/dimens-toggle";
+import { SnapShotBtn } from "../button/snap-shot";
 
 
 export const PanelCard = () => {
-
-    
 
     const [ plateList, setPlateList ] = useState([{
         width: 230,
@@ -30,10 +32,16 @@ export const PanelCard = () => {
         ]);
     }
 
+    /*
+     * Removed the plate from $PlateList
+     */
     const handleRemovePlateFromList = (index: number) => {
         setPlateList(prev => prev.filter((_, i) => i !== index));
     }
-
+    
+    /*
+     * Update the plate demins from input change
+     */
     const handleUpdatePlateFromList = (index: number, values: any) => {
         const updatedPlateList = plateList.filter((item, i) => {
             if( index == i ) {
@@ -45,6 +53,9 @@ export const PanelCard = () => {
         setPlateList(updatedPlateList);
     }
 
+    /*
+     * Re-Order $PlateList with Newly moved plate and push to correct places
+     */
     const handleUpdateNoteOrder = (oldIndex: number, newIndex: number) => {
 
         let updatedPlate = plateList[oldIndex];
@@ -54,6 +65,9 @@ export const PanelCard = () => {
         setPlateList([...updatedPlateList]);
     }
 
+    /*
+     * Generate the plate list Elements from PlateList array
+     */
     const PlateTileList = () => {
         return (
             plateList.map((plate: any, index: number) => 
@@ -69,18 +83,41 @@ export const PanelCard = () => {
         )
     }
 
-    console.log(plateList, 'plateList');
+    /*
+     * Modify the Plate List from uploaded images.
+     */
+    const handleUploadImages = (imagesList: any) => {
+        const plateList: any[] = [];
+        imagesList.filter((img: any, index: number) => {
+            plateList.push({
+                width: 230,
+                height: 128,
+                img: img.img,
+                id: index
+            })
+        });
+        setPlateList(plateList);
+    }
 
-    
     return (
         <>
             <PlateContainer>
+                
+                <ToggleBtnBox>
+                    <LangToggleBtn />
+                    <DimensToggleBtn />
+                    <SnapShotBtn />
+                    <FileUploadInput handleUploadImages={handleUploadImages}/> 
+                </ToggleBtnBox>
+
                 <PlateBoxContainer>
-                    <PlatePanel $flex="2" $bg="#F00">
-                        <LeftBox>   
+
+                    <PlatePanel $flex="2" $bg="#E9E9E9" style={{display: 'flex', alignItems: 'center'}}>
+                        <LeftBox>  
                             <PlateCanvasPattern plateList={plateList}/>
                         </LeftBox>
                     </PlatePanel>
+
                     <PlatePanel $flex="1" $bg="#FFF">
                         <RightBox>
                             <Title><Trans>title</Trans></Title>
@@ -90,6 +127,7 @@ export const PanelCard = () => {
                             <Button align={'right'} handleAddEvent={handleAddNewPlateToList} display={plateList.length === 10} />
                         </RightBox>
                     </PlatePanel>
+
                 </PlateBoxContainer>
             </PlateContainer>
         </>
@@ -98,7 +136,15 @@ export const PanelCard = () => {
 
 const PlateContainer = styled.div`
     display: flex;
+    flex-direction: column;
+    margin: 10px;
+`
+
+const ToggleBtnBox = styled.div`
+    display: flex;
     flex-direction: row;
+    justify-content: start;
+    margin-bottom: 10px;
 `
 
 const PlateBoxContainer = styled.div`
@@ -106,6 +152,11 @@ const PlateBoxContainer = styled.div`
     display: flex;
     flex-direction: row;
     width: 100%;
+    position: relative;
+    justify-content: start;
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
 `
 
 const PlatePanel = styled.div`
@@ -115,10 +166,10 @@ const PlatePanel = styled.div`
 `
 
 const LeftBox = styled.div`
-    background-color: #F3F3F3;
-    border: 1px solid #CCC;
-    height: 600px;
+    background-color: #E9E9E9;
+    height: auto;
     max-width: 100%;
+    position: relative;
 `
 
 const RightBox = styled.div `
@@ -130,6 +181,11 @@ const RightBox = styled.div `
     padding-right: 10px;
     margin-left: 40px;
     scroll-behavior: smooth;
+    @media (max-width: 768px) {
+        margin-left: 0px;
+        margin-top: 20px;
+        padding: 0;
+    }
 `
 
 const Title = styled.p`
@@ -137,7 +193,7 @@ const Title = styled.p`
     color: black;
     font-size: 20px;
     margin: 0;
-    padding: 0 15px 15px 15px;
+    padding: 0 15px 15px 0px;
     position: sticky;
     top: 0px;
     z-index: 102;
@@ -148,6 +204,7 @@ const DragnDropBox = styled.div`
     align-item: center;
     flex-direction: column;
     position: relative;
+    min-width: 320px;
     width: 100%;
     height: ${(p: any) => p.$legnth < 6 ? p.$legnth*100-32 : 5*100 }px;
     max-height: 600px;
@@ -158,3 +215,4 @@ const DragnDropBox = styled.div`
     overflow-y: ${(p: any) => p.$legnth < 6 ? "auto" : 'scroll'};
     margin-bottom: 10px
 `
+
