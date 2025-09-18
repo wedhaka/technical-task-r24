@@ -1,69 +1,46 @@
-# React + TypeScript + Vite
+# R24 Technical Task
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + Vite project showcasing image manipulation, place list management, and canvas operations.
 
-Currently, two official plugins are available:
+## Features
+- Load a default image into the canvas  
+- Generate a place list using default images  
+- Create a place list by uploading images  
+- Modify dimensions from input fields  
+- Add a new plate  
+- Reorganize the list  
+- Remove items from the list  
+- Change the language  
+- Take a snapshot of canvas tiles  
+- Update dimensions dynamically  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Requirements
+- Node.js v20+  
+- npm / TypeScript / Vite / React  
+- Project generated with the Vite framework  
 
-## Expanding the ESLint configuration
+## Installation
+```bash
+# Clone the repo
+git clone https://github.com/wedhaka/technical-task-r24.git
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Navigate to project folder
+cd technical-task-r24
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Install dependencies
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+# Start development server
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Build for production
+npm run build
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# Run tests
+npm test
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# Configuration
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+By default, Vite runs on port 5173. You can change the port in vite.config.ts or with an environment variable:
+
+PORT=5173
